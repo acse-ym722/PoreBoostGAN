@@ -33,18 +33,17 @@ cd data
 python tif2png_train_val.py
 python extract_subimages.py
 python generate_meta_info.py
-After preprocessing, the 3D digital rock will be separated into slices, and meta information will be generated to facilitate pairing and fast loading. The meta info will be saved in a designated folder for each dataset.
 ```
+After preprocessing, the 3D digital rock will be separated into slices, and meta information will be generated to facilitate pairing and fast loading. The meta info will be saved in a designated folder for each dataset.
 ## Training Process
 To train the model, simply modify the .yml configuration file to suit your needs:
 
 ```bash
 python src/train.py -opt options/train/ESRGAN/train_Carbonates_x4_model_2.yml
-Fast Super-Resolution & 3D Reconstruction Workflow
-After training, you can quickly perform super-resolution and reconstruct 3D digital rocks using the following steps:
 ```
 
 ## A fast 3D Super-resolution and reconstruction workflow
+After training, you can quickly perform super-resolution and reconstruct 3D digital rocks using the following steps:
 ```bash
 # Slice your low-resolution digital rock into individual images
 python tif2png.py
