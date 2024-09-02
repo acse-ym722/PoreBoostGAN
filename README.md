@@ -12,27 +12,23 @@ This repository provides the essentials for utilizing PoreBoostGAN, including:
 To get started, clone the repository and set up the environment:
 
 ```bash
-
-Copy
 git clone https://github.com/acse-ym722/PoreBoostGAN.git
 cd PoreBoostGAN
-We provide an environment.yml file that can be used to create a Conda environment. If you only intend to run pre-trained models on a CPU, you may exclude the cudatoolkit and pytorch-cuda dependencies from the file. The code has been tested on Ubuntu 20.04 with CUDA 11.8, PyTorch 2.4 (latest), and Python 3.8.
 ```
+We provide an environment.yml file that can be used to create a Conda environment. If you only intend to run pre-trained models on a CPU, you may exclude the cudatoolkit and pytorch-cuda dependencies from the file. The code has been tested on Ubuntu 20.04 with CUDA 11.8, PyTorch 2.4 (latest), and Python 3.8.
 ```bash
-
-Copy
 conda env create -f environment.yml
 conda activate pore
+```
 Dataset Preparation
 In the dataset directory, we provide scripts for converting and processing your 3D digital rock data:
 
 tif2png.py: Converts 3D TIFF files into 2D PNG slices.
-png2tif.py: Reconstructs 3D TIFF files from 2D PNG slices.
-To prepare your dataset, follow these steps:
-```
-```bash
 
-Copy
+png2tif.py: Reconstructs 3D TIFF files from 2D PNG slices.
+
+To prepare your dataset, follow these steps:
+```bash
 cd data
 python tif2png_train_val.py
 python extract_subimages.py
@@ -43,15 +39,13 @@ After preprocessing, the 3D digital rock will be separated into slices, and meta
 To train the model, simply modify the .yml configuration file to suit your needs:
 
 ```bash
-
-Copy
 python src/train.py -opt options/train/ESRGAN/train_Carbonates_x4_model_2.yml
 Fast Super-Resolution & 3D Reconstruction Workflow
 After training, you can quickly perform super-resolution and reconstruct 3D digital rocks using the following steps:
 ```
-```bash
 
-Copy
+## A fast 3D Super-resolution and reconstruction workflow
+```bash
 # Slice your low-resolution digital rock into individual images
 python tif2png.py
 
@@ -60,9 +54,11 @@ python src/app.py -opt options/run.yml
 
 # Reconstruct the 3D digital rock
 python png2tif.py
+```
 For further refinement, you can upscale the Z-direction using ImageJ:
-
+If you want to avoid denoise model, 
 Open ImageJ and load the generated TIFF file.
+```bash
 Navigate to Image > Scale.
 Set the scaling factor for the Z-axis and choose an interpolation method (Bilinear or Bicubic).
 Save the result as a new TIFF file.
@@ -84,7 +80,6 @@ python src/app.py -opt options/run.yml
 Strategy 2:
 Set the input path to the high-resolution images.
 Run the model:
-
 ```bash
 python src/app.py -opt options/run.yml
 Citation
