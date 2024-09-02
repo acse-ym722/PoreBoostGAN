@@ -7,7 +7,7 @@ This repository provides the essentials for utilizing PoreBoostGAN, including:
 * 🪐 Dataset Preparation: Workflow for converting 3D digital rock datasets into paired meta files necessary for training and inference.
 * ⚡️ Training Configuration: Instructions on how to set up and initiate the training process using customizable configuration files.
 * 💥 Inference: Guidelines for applying the pre-trained model to new digital rock datasets.
-* 🛸 Extrapolation and Downsampling: Workflow for extending and downsampling digital rock images.
+* 🛸 Extrapolation: Workflow for extending and downsampling digital rock images.
 ## Setup Environment
 To get started, clone the repository and set up the environment:
 
