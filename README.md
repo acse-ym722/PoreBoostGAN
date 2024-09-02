@@ -69,41 +69,31 @@ Save the result as a new TIFF file.
 ```
 ## Extrapolation Mode
 PoreBoostGAN supports two extrapolation strategies:
-```bash
 Strategy 1:
 Set the input path to the low-resolution images.
 Run the model:
-bash
-
-Copy
+```bash
 python src/app.py -opt options/run.yml
+```
 Update the configuration file to set the output path from the previous run as the new input path.
 Run the model again:
-bash
 
-Copy
+```bash
 python src/app.py -opt options/run.yml
-
+```
 Strategy 2:
 Set the input path to the high-resolution images.
 Run the model:
-bash
 
-Copy
+```bash
 python src/app.py -opt options/run.yml
 Citation
 If you use PoreBoostGAN in your research, please cite it using the following BibTeX entry:
 ```
-bibtex
+```bibtex
+Meng, Yang; An, Senyou (2024), “PoreBoostGAN”, Mendeley Data, V1, doi: 10.17632/6kvtfb5kts.1
+```
 
-Copy
-@article{PoreBoostGAN,
-  author = {Your Name and Others},
-  title = {PoreBoostGAN: Super-Resolution for Digital Rock Imaging},
-  journal = {Journal Name},
-  year = {2024},
-  doi = {xx.xxxx/xxxxx}
-}
 Acknowledgments
 We acknowledge the High Performance Computing Center at the Eastern Institute of Technology for supporting the computational requirements of this research. The architecture and development of the super-resolution algorithm are primarily based on the BasicSR framework. We also thank Shenzhen University for scanning a new dataset of biomass carbonate rocks with three resolutions.
 
