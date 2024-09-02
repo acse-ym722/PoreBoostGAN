@@ -1,87 +1,111 @@
 # PoreBoostGAN
-Carbonate rocks exhibit complex, multi-scale features that challenge traditional imaging techniques. To overcome the trade-off between field of view and resolution, we developed a Swin Transformer-based approach that captures long-range features. This method reconstructs high-resolution digital rock models that closely match real physical properties and predict structures beyond current imaging limits. Additionally, our downsampling strategy preserves high-frequency information while keeping data volumes manageable, offering a more detailed and efficient representation of carbonate rocks.
+Carbonate rocks are characterized by intricate, multi-scale structures that often present significant challenges to conventional imaging techniques. To address the inherent trade-offs between field of view and resolution, we have developed PoreBoostGAN—a cutting-edge super-resolution model based on the Swin Transformer architecture. This model excels at capturing long-range dependencies and reconstructing high-resolution digital rock models. These models not only closely replicate real physical properties but also allow for the prediction of structures beyond current imaging capabilities. Furthermore, our innovative downsampling strategy ensures the preservation of high-frequency information while maintaining manageable data volumes, thus offering a more detailed and efficient representation of carbonate rocks.
 
-This repository contains:
+## Repository Overview
+This repository provides the essentials for utilizing PoreBoostGAN, including:
 
-* 🪐 Basic dataset preparation workflow from 3D digital rock to paired meta files.
-
-* ⚡️ Training config file and how to start training.
-
-* 💥 Inference your digital rock from pretrained model.
-
-* 🛸 extrapolating and downsample workflow
-
-
+* 🪐 Dataset Preparation: Workflow for converting 3D digital rock datasets into paired meta files necessary for training and inference.
+* ⚡️ Training Configuration: Instructions on how to set up and initiate the training process using customizable configuration files.
+* 💥 Inference: Guidelines for applying the pre-trained model to new digital rock datasets.
+* 🛸 Extrapolation and Downsampling: Workflow for extending and downsampling digital rock images.
 ## Setup Environment
-First, download and set up the repo:
+To get started, clone the repository and set up the environment:
+
 ```bash
+
+Copy
 git clone https://github.com/acse-ym722/PoreBoostGAN.git
 cd PoreBoostGAN
+We provide an environment.yml file that can be used to create a Conda environment. If you only intend to run pre-trained models on a CPU, you may exclude the cudatoolkit and pytorch-cuda dependencies from the file. The code has been tested on Ubuntu 20.04 with CUDA 11.8, PyTorch 2.4 (latest), and Python 3.8.
 ```
-We provide an [`environment.yml`](environment.yml) file that can be used to create a Conda environment. If you only want 
-to run pre-trained models locally on CPU, you can remove the `cudatoolkit` and `pytorch-cuda` requirements from the file.
-with miniconda successfully installed:
-code tested on Ubuntu20.04 cuda11.8 pytorch2.4(latest) python3.8
 ```bash
+
+Copy
 conda env create -f environment.yml
 conda activate pore
-```
+Dataset Preparation
+In the dataset directory, we provide scripts for converting and processing your 3D digital rock data:
 
-## Dataset prepare
-In `dataset` folder, we provide tif2png.py and png2tif.py, which are designed for dataset preparation and image reconstruction.
+tif2png.py: Converts 3D TIFF files into 2D PNG slices.
+png2tif.py: Reconstructs 3D TIFF files from 2D PNG slices.
+To prepare your dataset, follow these steps:
+```
 ```bash
+
+Copy
 cd data
 python tif2png_train_val.py
 python extract_subimages.py
 python generate_meta_info.py
+After preprocessing, the 3D digital rock will be separated into slices, and meta information will be generated to facilitate pairing and fast loading. The meta info will be saved in a designated folder for each dataset.
 ```
-after preprocecss you can seperate the 3D digital rock into slices and create meta info for pairing and fast load.
-meta info will be saved into a folder for each dataset
-
 ## Training Process
-all you need is to modify the .yml file to setup all config file.
-```bash
-python src/train.py -opt options/train/ESRGAN/train_Carbonates_x4_model_2.yml # path to your yml
-```
+To train the model, simply modify the .yml configuration file to suit your needs:
 
-## a fast SR & 3D reconstruction workflow
 ```bash
-# After training, assume you have a pretrained model weight
-# first slice your low resolution digital rock into single images by runing
+
+Copy
+python src/train.py -opt options/train/ESRGAN/train_Carbonates_x4_model_2.yml
+Fast Super-Resolution & 3D Reconstruction Workflow
+After training, you can quickly perform super-resolution and reconstruct 3D digital rocks using the following steps:
+```
+```bash
+
+Copy
+# Slice your low-resolution digital rock into individual images
 python tif2png.py
-# SR all the images from XY pannel
-python src/app.py -opt options/run.yml # # path to your config file
-# reconstruct 3D digital rock
+
+# Apply super-resolution to all images in the XY plane
+python src/app.py -opt options/run.yml 
+
+# Reconstruct the 3D digital rock
 python png2tif.py
-# Download tif file and use the imageJ upsample z direction only
-Open ImageJ and tif file
-Image > Scale
-set scaling factor for the Z axis and Interpolation method(Bilinear or Bicubic)
-save as a new tif file.
-```
+For further refinement, you can upscale the Z-direction using ImageJ:
 
-## extrapolation mode
+Open ImageJ and load the generated TIFF file.
+Navigate to Image > Scale.
+Set the scaling factor for the Z-axis and choose an interpolation method (Bilinear or Bicubic).
+Save the result as a new TIFF file.
+```
+## Extrapolation Mode
+PoreBoostGAN supports two extrapolation strategies:
 ```bash
-# strategy1
-set the input path as low resolution image path
+Strategy 1:
+Set the input path to the low-resolution images.
+Run the model:
+bash
+
+Copy
 python src/app.py -opt options/run.yml
-# the second time you need to change the config file refer the output path of previous run as input path
+Update the configuration file to set the output path from the previous run as the new input path.
+Run the model again:
+bash
+
+Copy
 python src/app.py -opt options/run.yml
-# strategy2
-set the input path to high resolution image path, then
+
+Strategy 2:
+Set the input path to the high-resolution images.
+Run the model:
+bash
+
+Copy
 python src/app.py -opt options/run.yml
+Citation
+If you use PoreBoostGAN in your research, please cite it using the following BibTeX entry:
 ```
+bibtex
 
-## BibTeX
+Copy
+@article{PoreBoostGAN,
+  author = {Your Name and Others},
+  title = {PoreBoostGAN: Super-Resolution for Digital Rock Imaging},
+  journal = {Journal Name},
+  year = {2024},
+  doi = {xx.xxxx/xxxxx}
+}
+Acknowledgments
+We acknowledge the High Performance Computing Center at the Eastern Institute of Technology for supporting the computational requirements of this research. The architecture and development of the super-resolution algorithm are primarily based on the BasicSR framework. We also thank Shenzhen University for scanning a new dataset of biomass carbonate rocks with three resolutions.
 
-```bibtex
-
-```
-
-
-## Acknowledgments
-The computing for this research was supported by High Performance Computing Center at the Eastern Institute of Technology. The main structure of the super-resolution algorithm and development are based on Basicsr. Shenzhen University scanned a new dataset with 3 resolutions of biomass carbonate rocks.
-
-
-## License
-The code and model weights are licensed under CC-BY-NC. See [`LICENSE.txt`](LICENSE.txt) for details.
+License
+The code and model weights are licensed under the CC-BY-NC license. See LICENSE.txt for more details.
