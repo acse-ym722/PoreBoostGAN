@@ -93,4 +93,4 @@ Meng, Yang; An, Senyou (2024), “PoreBoostGAN”, Mendeley Data, V1, doi: 10.17
 We acknowledge the High Performance Computing Center at the Eastern Institute of Technology for supporting the computational requirements of this research. The architecture and development of the super-resolution algorithm are primarily based on the BasicSR framework. We also thank Shenzhen University for scanning a new dataset of biomass carbonate rocks with three resolutions.
 
 ## License
-The code and model weights are licensed under the CC-BY-NC license. See LICENSE.txt for more details.
+The code and model weights are licensed under the MIT license. See `LICENSE` for more details.
