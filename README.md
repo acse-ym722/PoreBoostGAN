@@ -90,12 +90,14 @@ python src/app.py -opt options/run.yml
 Citation
 If you use PoreBoostGAN in your research, please cite it using the following BibTeX entry:
 ```
+
+## bibtex
 ```bibtex
 Meng, Yang; An, Senyou (2024), “PoreBoostGAN”, Mendeley Data, V1, doi: 10.17632/6kvtfb5kts.1
 ```
 
-Acknowledgments
+## Acknowledgments
 We acknowledge the High Performance Computing Center at the Eastern Institute of Technology for supporting the computational requirements of this research. The architecture and development of the super-resolution algorithm are primarily based on the BasicSR framework. We also thank Shenzhen University for scanning a new dataset of biomass carbonate rocks with three resolutions.
 
-License
+## License
 The code and model weights are licensed under the CC-BY-NC license. See LICENSE.txt for more details.
