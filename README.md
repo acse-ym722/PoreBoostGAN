@@ -82,11 +82,10 @@ Set the input path to the high-resolution images.
 Run the model:
 ```bash
 python src/app.py -opt options/run.yml
-Citation
-If you use PoreBoostGAN in your research, please cite it using the following BibTeX entry:
 ```
+## Citation
+If you use PoreBoostGAN in your research, please cite it using the following BibTeX entry:
 
-## bibtex
 ```bibtex
 Meng, Yang; An, Senyou (2024), “PoreBoostGAN”, Mendeley Data, V1, doi: 10.17632/6kvtfb5kts.1
 ```
