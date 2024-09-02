@@ -1,6 +1,6 @@
 # PoreBoostGAN
 Carbonate rocks are characterized by intricate, multi-scale structures that often present significant challenges to conventional imaging techniques. To address the inherent trade-offs between field of view and resolution, we have developed PoreBoostGAN—a cutting-edge super-resolution model based on the Swin Transformer architecture. This model excels at capturing long-range dependencies and reconstructing high-resolution digital rock models. These models not only closely replicate real physical properties but also allow for the prediction of structures beyond current imaging capabilities. Furthermore, our innovative downsampling strategy ensures the preservation of high-frequency information while maintaining manageable data volumes, thus offering a more detailed and efficient representation of carbonate rocks.
-## Preprocessing scripts and super-resolution code associated with this dataset will be publicly released upon the publication of the related research paper.
+## Preprocessing scripts and super-resolution code associated with this project will be publicly released upon the publication of the related research paper.
 ## Repository Overview
 This repository provides the essentials for utilizing PoreBoostGAN, including:
 
