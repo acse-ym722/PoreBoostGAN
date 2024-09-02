@@ -23,9 +23,9 @@ conda activate pore
 Dataset Preparation
 In the dataset directory, we provide scripts for converting and processing your 3D digital rock data:
 
-tif2png.py: Converts 3D TIFF files into 2D PNG slices.
+`tif2png.py`: Converts 3D TIFF files into 2D PNG slices.
 
-png2tif.py: Reconstructs 3D TIFF files from 2D PNG slices.
+`png2tif.py`: Reconstructs 3D TIFF files from 2D PNG slices.
 
 To prepare your dataset, follow these steps:
 ```bash
