@@ -20,6 +20,14 @@ We provide an environment.yml file that can be used to create a Conda environmen
 conda env create -f environment.yml
 conda activate pore
 ```
+Follow the instruction to install the pytorch https://pytorch.org/get-started/locally/
+For example:
+```
+conda install pytorch==2.4.1 torchvision==0.19.1 torchaudio==2.4.1  pytorch-cuda=11.8 -c pytorch -c nvidia
+then:
+pip install basicsr
+```
+
 Dataset Preparation
 In the dataset directory, we provide scripts for converting and processing your 3D digital rock data:
 
@@ -39,7 +47,7 @@ After preprocessing, the 3D digital rock will be separated into slices, and meta
 To train the model, simply modify the .yml configuration file to suit your needs:
 
 ```bash
-python src/train.py -opt options/train/ESRGAN/train_Carbonates_x4_model_2.yml
+python src/train.py -opt options/train/ESRGAN/train_Carbonates_x4.yml
 ```
 
 ## A fast 3D Super-resolution and reconstruction workflow
