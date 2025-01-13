@@ -47,7 +47,7 @@ After preprocessing, the 3D digital rock will be separated into slices, and meta
 To train the model, simply modify the .yml configuration file to suit your needs:
 
 ```bash
-python src/train.py -opt options/train/ESRGAN/train_Carbonates_x4.yml
+python src/train.py -opt options/train/ESRGAN/train_Carbonates_x4_test.yml
 ```
 
 ## A fast 3D Super-resolution and reconstruction workflow
