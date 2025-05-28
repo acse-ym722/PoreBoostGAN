@@ -1,0 +1,36 @@
+name: SR_SwinIRGAN_3D
+model_type: ESRGANModel
+scale: 4
+num_gpu: 1  # set num_gpu: 0 for cpu mode
+manual_seed: 0
+
+datasets:
+  test_1:  # the 2nd test dataset
+    name: test_images
+    type: SingleImageDataset
+    dataroot_lq: ./data/mengyang/CARBONATES/3DSR/Low/train
+    io_backend:
+      type: disk
+
+# network structures
+network_g:
+  type: SwinIR
+  upscale: 4
+  in_chans: 3
+  img_size: 48
+  window_size: 8
+  img_range: 1.
+  depths: [6, 6, 6, 6, 6, 6]
+  embed_dim: 96
+  num_heads: [6, 6, 6, 6, 6, 6]
+  mlp_ratio: 4
+  upsampler: 'pixelshuffle'
+  resi_connection: '1conv'
+
+path:
+  pretrain_network_g: models/SwinIRGAN3D.pth
+  strict_load_g: true
+  # suffix: ~
+
+val:
+  save_img: True

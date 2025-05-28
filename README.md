@@ -8,6 +8,7 @@ This repository provides the essentials for utilizing PoreBoostGAN, including:
 * ⚡️ Training Configuration: Instructions on how to set up and initiate the training process using customizable configuration files.
 * 💥 Inference: Guidelines for applying the pre-trained model to new digital rock datasets.
 * 🛸 Extrapolation: Workflow for extending and downsampling digital rock images.
+* 🧬 [New] 3D Super-Resolution: Direct support for 3D super-resolution by adjusting input and output channels for enhanced Z-axis reconstruction and improved physical fidelity.
 ## Setup Environment
 To get started, clone the repository and set up the environment:
 
@@ -48,6 +49,7 @@ To train the model, simply modify the .yml configuration file to suit your needs
 
 ```bash
 python src/train.py -opt options/train/ESRGAN/train_Carbonates_x4_test.yml
+python src/train.py -opt options/train/ESRGAN/train_Carbonates_x4_3DSR.yml
 ```
 
 ## A fast 3D Super-resolution and reconstruction workflow
@@ -90,6 +92,29 @@ Run the model:
 ```bash
 python src/app.py -opt options/run.yml
 ```
+## 🆕 New Feature: 3D Super-Resolution Support
+We have added native support for 3D super-resolution in PoreBoostGAN!
+Now, by modifying the number of input and output channels, you can control the amount of context integrated in the Z-direction, enabling more accurate and physically meaningful 3D reconstructions.
+
+Highlights
+Flexible Context Control:
+The number of input/output channels corresponds to the number of slices considered in the Z direction. Increasing this number incorporates more contextual information along the Z-axis, effectively boosting the reconstruction quality of 3D digital rocks.
+
+Physically Meaningful Z-axis Recovery:
+By utilizing more Z-slices as input, the model is able to learn richer spatial correlations and generate super-resolved 3D structures that better match the underlying rock physics.
+
+### How to Use:
+
+In your YAML configuration file `(e.g., options/train/ESRGAN/train_Carbonates_x4_3DSR.yml)`, set input_nc and output_nc to the desired number of channels.
+For example, to use 5 slices as input and reconstruct the central slice, set input_nc: 5 and output_nc: 1.
+For full 3D super-resolution (e.g., input 3 slices, output 3 slices), set both input_nc and output_nc to 3.
+
+```yaml
+# Example in YAML config:
+  num_in_ch: n     # Number of input slices (channels)
+  num_out_ch: 4n    # Number of output slices (channels)
+```
+
 ## Citation
 If you use PoreBoostGAN in your research, please cite it using the following BibTeX entry:
 
