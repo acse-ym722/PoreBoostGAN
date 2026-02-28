@@ -127,3 +127,6 @@ We acknowledge the High Performance Computing Center at the Eastern Institute of
 
 ## License
 The code and model weights are licensed under the MIT license. See `LICENSE` for more details.
+
+## Open Source
+https://doi.org/10.5281/zenodo.18809715
