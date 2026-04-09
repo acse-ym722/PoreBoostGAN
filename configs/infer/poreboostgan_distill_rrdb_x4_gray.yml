@@ -1,0 +1,30 @@
+name: poreboostgan_distill_rrdb_infer_x4_gray
+model_type: SRModel
+scale: 4
+num_gpu: auto
+manual_seed: 0
+
+datasets:
+  test_1:
+    name: carbonates_demo
+    type: SingleImageDataset
+    dataroot_lq: data/mengyang/CARBONATES/3DSR/Low/validation
+    img_flag: grayscale
+    io_backend:
+      type: disk
+
+network_g:
+  type: RRDBNet
+  num_in_ch: 1
+  num_out_ch: 1
+  scale: 4
+  num_feat: 16
+  num_block: 4
+  num_grow_ch: 16
+
+path:
+  pretrain_network_g: models/poreboostgan_distill_rrdb_x4_gray.pth
+  strict_load_g: true
+
+val:
+  save_img: true

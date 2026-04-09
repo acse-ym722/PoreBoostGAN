@@ -111,10 +111,19 @@ def check_resume(opt, resume_iter):
         for network in networks:
             name = f'pretrain_{network}'
             basename = network.replace('network_', '')
+            if opt.get('model_type') == 'DistillFeatureSRModel' and network == 'network_teacher':
+                # Keep the external fixed teacher checkpoint when resuming.
+                continue
             if opt['path'].get('ignore_resume_networks') is None or (network
                                                                      not in opt['path']['ignore_resume_networks']):
                 opt['path'][name] = osp.join(opt['path']['models'], f'net_{basename}_{resume_iter}.pth')
                 print(f"Set {name} to {opt['path'][name]}")
+
+        if opt.get('model_type') == 'DistillFeatureSRModel':
+            adaptor_path = osp.join(opt['path']['models'], f'net_feat_adaptor_{resume_iter}.pth')
+            if osp.exists(adaptor_path):
+                opt['path']['pretrain_network_feat_adaptor'] = adaptor_path
+                print(f"Set pretrain_network_feat_adaptor to {adaptor_path}")
 
         # change param_key to params in resume
         param_keys = [key for key in opt['path'].keys() if key.startswith('param_key')]

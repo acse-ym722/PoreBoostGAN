@@ -1,15 +1,11 @@
 # PoreBoostGAN
 
-PoreBoostGAN is a lightweight digital-rock super-resolution repository focused but not limited on carbonate rocks.
+PoreBoostGAN is a lightweight digital-rock super-resolution repository with two closely related projects that share most code:
 
-This repository now only keeps the digital-rock workflow:
+1. `PoreBoostGAN` (main): EDSR / ESRGAN / SwinIR / SwinIR+GAN.
+2. `DistillSR` (optional): ESRGAN-style student-teacher distillation without GAN, supervised by final deep RRDB features.
 
-1. Paired low-resolution / high-resolution training on carbonate slices or XY patches.
-2. High-resolution global inference from low-resolution global scans.
-3. Iterative inference for extrapolation beyond the original instrument resolution.
-4. Downsampling utilities for representation studies.
-
-This repository does **not** target medical images, segmentation, distillation, video restoration, or generic BasicSR development.
+This repository does **not** target medical images, segmentation, denoising, video restoration, or generic BasicSR development.
 
 3D Z-axis reconstruction is also **not** implemented here. This codebase only handles XY super-resolution and slice-wise inference. Z reconstruction can be completed later in ImageJ or another external tool.
 
@@ -17,7 +13,7 @@ This repository does **not** target medical images, segmentation, distillation, 
 
 - Domain: carbonate digital rocks.
 - Data type: grayscale images.
-- Model pipeline: native single-channel super-resolution.
+- Model pipeline: native single-channel super-resolution, with optional distillation.
 - Packaging: local `poreboostgan` package, no external `basicsr` dependency.
 
 ## Current Data Layout
@@ -57,6 +53,21 @@ The default main configuration is the grayscale SwinIR + GAN setup:
 ```bash
 python src/train.py -opt configs/train/poreboostgan_swinir_gan_x4_gray.yml
 ```
+
+## DistillSR Training (Optional)
+
+The distillation project is separated by model/config, while reusing the same package and data pipeline.
+
+```bash
+python src/train.py -opt configs/train/poreboostgan_distill_rrdb_x4_gray.yml
+```
+
+Core idea:
+
+- teacher: pretrained RRDB SR network (frozen)
+- student: lightweight RRDB SR network (trainable)
+- objective: deep feature supervision on the last RRDB trunk feature (`return_feats=True`)
+- GAN loss is not used in this project
 
 ## Main Inference
 
@@ -100,6 +111,12 @@ SwinIR+GAN:
 python src/infer.py -opt configs/infer/poreboostgan_swinir_gan_x4_gray.yml
 ```
 
+DistillSR student inference:
+
+```bash
+python src/infer.py -opt configs/infer/poreboostgan_distill_rrdb_x4_gray.yml
+```
+
 ## Quick Smoke Training (1~5 Steps)
 
 The following commands are for quick smoke runs only.  
@@ -133,6 +150,14 @@ SwinIR+GAN smoke:
 
 ```bash
 python src/train.py -opt configs/train/poreboostgan_swinir_gan_x4_gray.yml \
+  --force_yml train:total_iter=5 val=none logger:use_tb_logger=false logger:save_checkpoint_freq=999999999 \
+  datasets:train:num_worker_per_gpu=0 datasets:train:batch_size_per_gpu=1 logger:print_freq=1
+```
+
+DistillSR smoke:
+
+```bash
+python src/train.py -opt configs/train/poreboostgan_distill_rrdb_x4_gray.yml \
   --force_yml train:total_iter=5 val=none logger:use_tb_logger=false logger:save_checkpoint_freq=999999999 \
   datasets:train:num_worker_per_gpu=0 datasets:train:batch_size_per_gpu=1 logger:print_freq=1
 ```
