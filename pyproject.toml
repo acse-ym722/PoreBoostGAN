@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "poreboostgan"
+version = "0.1.0"
+description = "Digital rock super-resolution for carbonate rocks"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+  "numpy",
+  "opencv-python",
+  "Pillow",
+  "PyYAML",
+  "scikit-image",
+  "scipy",
+  "tensorboard",
+  "tqdm",
+]
+
+[tool.setuptools]
+include-package-data = true
+
+[tool.setuptools.packages.find]
+include = ["poreboostgan*"]
+
+[tool.setuptools.package-data]
+poreboostgan = ["metrics/niqe_pris_params.npz"]

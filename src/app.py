@@ -1,13 +1,17 @@
 import logging
+import sys
 import torch
 from tqdm import tqdm
 from os import path as osp
 
-from basicsr.data import build_dataloader, build_dataset
-from basicsr.models import build_model
-from basicsr.utils import get_env_info, get_root_logger, get_time_str, make_exp_dirs
-from basicsr.utils.options import dict2str, parse_options
-from basicsr.utils import get_root_logger, imwrite, tensor2img
+PROJECT_ROOT = osp.abspath(osp.join(osp.dirname(__file__), osp.pardir))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+from poreboostgan.data import build_dataloader, build_dataset
+from poreboostgan.models import build_model
+from poreboostgan.utils.options import parse_options
+from poreboostgan.utils import imwrite, tensor2img
 
 def application_pipeline(root_path):
     # parse options, set distributed setting, set ramdom seed
@@ -35,10 +39,7 @@ def application_pipeline(root_path):
         for idx, val_data in enumerate(tqdm(test_loader)):
             img_name = osp.splitext(osp.basename(val_data['lq_path'][0]))[0]
             model.feed_data(val_data)
-            model.net_g.eval()
-            with torch.no_grad():
-                model.output = model.net_g(model.lq)
-            model.net_g.train()
+            model.test()
             visuals = model.get_current_visuals()
             sr_img = tensor2img(visuals['result'])
             metric_data['img'] = sr_img
@@ -48,5 +49,5 @@ def application_pipeline(root_path):
             imwrite(sr_img, save_img_path)
 
 if __name__ == '__main__':
-    root_path = osp.abspath(osp.join(__file__, osp.pardir, osp.pardir))
+    root_path = PROJECT_ROOT
     application_pipeline(root_path)

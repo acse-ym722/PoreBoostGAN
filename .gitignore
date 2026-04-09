@@ -9,6 +9,9 @@ data/mengyang/CARBONATES/3DSR
 data/mengyang/CARBONATES/c2_lo_resized_512_376_376_8bits.tif
 experiments
 tb_logger
-BasicSR
 models
 results
+.codex/
+__pycache__/
+*.pyc
+poreboostgan.egg-info/

@@ -1,11 +1,16 @@
 import logging
+import sys
 import torch
 from os import path as osp
 
-from basicsr.data import build_dataloader, build_dataset
-from basicsr.models import build_model
-from basicsr.utils import get_env_info, get_root_logger, get_time_str, make_exp_dirs
-from basicsr.utils.options import dict2str, parse_options
+PROJECT_ROOT = osp.abspath(osp.join(osp.dirname(__file__), osp.pardir))
+if PROJECT_ROOT not in sys.path:
+    sys.path.insert(0, PROJECT_ROOT)
+
+from poreboostgan.data import build_dataloader, build_dataset
+from poreboostgan.models import build_model
+from poreboostgan.utils import get_env_info, get_root_logger, get_time_str, make_exp_dirs
+from poreboostgan.utils.options import dict2str, parse_options
 
 
 def test_pipeline(root_path):
@@ -18,7 +23,7 @@ def test_pipeline(root_path):
     # mkdir and initialize loggers
     make_exp_dirs(opt)
     log_file = osp.join(opt['path']['log'], f"test_{opt['name']}_{get_time_str()}.log")
-    logger = get_root_logger(logger_name='basicsr', log_level=logging.INFO, log_file=log_file)
+    logger = get_root_logger(logger_name='poreboostgan', log_level=logging.INFO, log_file=log_file)
     logger.info(get_env_info())
     logger.info(dict2str(opt))
 
@@ -41,5 +46,5 @@ def test_pipeline(root_path):
 
 
 if __name__ == '__main__':
-    root_path = osp.abspath(osp.join(__file__, osp.pardir, osp.pardir))
+    root_path = PROJECT_ROOT
     test_pipeline(root_path)

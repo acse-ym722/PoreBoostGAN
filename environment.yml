@@ -1,13 +1,9 @@
-name: pore
+name: poreboostgan
 channels:
   - defaults
   - conda-forge
 dependencies:
   - python=3.8
   - pip
-  - ipython
-  - jupyter
-  - numpy
-  - scipy
   - pip:
     - -r requirements.txt

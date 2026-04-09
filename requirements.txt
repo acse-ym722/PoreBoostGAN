@@ -1,11 +1,8 @@
-ipython
-jupyter
 numpy
-scipy
-matplotlib
-jupyter-book
-pandas
 opencv-python
-pylint
-tqdm
+Pillow
+PyYAML
 scikit-image
+scipy
+tensorboard
+tqdm
