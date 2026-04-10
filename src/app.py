@@ -35,10 +35,31 @@ def _tensor_to_volume(tensor):
 def _save_volume_tif(volume, save_path):
     if tifffile is None:
         raise ImportError('tifffile is required for 3D tif output. Please install tifffile.')
-    # Save as uint8 for better compatibility with common TIFF viewers.
+    # Save as uint8 for better compatibility with ImageJ/common TIFF viewers.
     volume_u8 = np.clip(volume, 0.0, 1.0)
     volume_u8 = np.round(volume_u8 * 255.0).astype(np.uint8)
-    tifffile.imwrite(save_path, volume_u8, bigtiff=True)
+    if volume_u8.ndim == 4 and volume_u8.shape[-1] == 1:
+        volume_u8 = volume_u8[..., 0]
+
+    if volume_u8.ndim == 3:
+        # ImageJ stack: Z, Y, X
+        volume_to_write = volume_u8
+        axes = 'ZYX'
+    elif volume_u8.ndim == 4:
+        # Convert Z, Y, X, C -> Z, C, Y, X for ImageJ hyperstack axes order.
+        volume_to_write = np.moveaxis(volume_u8, -1, 1)
+        axes = 'ZCYX'
+    else:
+        raise ValueError(f'Expected 3D/4D volume, got shape={volume_u8.shape}.')
+
+    need_bigtiff = volume_to_write.nbytes >= (4 * 1024**3 - 32 * 1024**2)
+    tifffile.imwrite(
+        str(save_path),
+        np.ascontiguousarray(volume_to_write),
+        imagej=True,
+        metadata={'axes': axes},
+        compression=None,
+        bigtiff=need_bigtiff)
 
 
 def application_pipeline(root_path):

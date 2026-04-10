@@ -178,21 +178,27 @@ def _finalize_output(output_array, output_path: Path, temp_npy: Path, save_dtype
     comp = None if compression == 'none' else compression
     need_bigtiff = arr.nbytes >= (4 * 1024**3 - 32 * 1024**2)
     if tif_layout == 'imagej':
+        arr_to_write = arr
         if arr.ndim == 3:
             axes = 'ZYX'
         elif arr.ndim == 4:
-            axes = 'ZYXC'
+            # Convert DHWC (ZYXC) to ZCYX for ImageJ hyperstack-compatible axes order.
+            arr_to_write = np.moveaxis(arr, -1, 1)
+            axes = 'ZCYX'
         else:
             axes = None
-        tifffile.imwrite(
-            str(output_path),
-            arr,
-            compression=comp,
-            bigtiff=need_bigtiff,
-            imagej=True if axes is not None else False,
-            metadata={'axes': axes} if axes is not None else None)
+        if axes is not None:
+            tifffile.imwrite(
+                str(output_path),
+                np.ascontiguousarray(arr_to_write),
+                compression=comp,
+                bigtiff=need_bigtiff,
+                imagej=True,
+                metadata={'axes': axes})
+        else:
+            tifffile.imwrite(str(output_path), np.ascontiguousarray(arr), compression=comp, bigtiff=need_bigtiff)
     else:
-        tifffile.imwrite(str(output_path), arr, compression=comp, bigtiff=need_bigtiff)
+        tifffile.imwrite(str(output_path), np.ascontiguousarray(arr), compression=comp, bigtiff=need_bigtiff)
     if temp_npy is not None and temp_npy.exists():
         temp_npy.unlink()
 
