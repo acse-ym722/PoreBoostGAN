@@ -1,17 +1,42 @@
-data/mengyang/CARBONATES/c2_lo_resized_256_768_8bits.tif
-data/mengyang/CARBONATES/c2_hi_resized_1024_3072_8bits.tif
-data/mengyang/CARBONATES/meta_info
-data/mengyang/CARBONATES/Low_sub
-data/mengyang/CARBONATES/Low
-data/mengyang/CARBONATES/High_sub
-data/mengyang/CARBONATES/High
-data/mengyang/CARBONATES/3DSR
-data/mengyang/CARBONATES/c2_lo_resized_512_376_376_8bits.tif
+# Training / runtime artifacts
 experiments
 tb_logger
 models
 results
+
+# Local tooling / build cache
 .codex/
 __pycache__/
 *.pyc
 poreboostgan.egg-info/
+
+# Data policy:
+# - keep docs/scripts/layout placeholders in data/
+# - do not commit raw or generated dataset binaries
+data/**/*.tif
+data/**/*.tiff
+data/**/*.png
+data/**/*.jpg
+data/**/*.jpeg
+data/**/*.bmp
+data/**/*.webp
+data/**/*.gif
+data/**/*.npy
+data/**/*.npz
+data/**/*.h5
+data/**/*.hdf5
+data/**/*.db
+data/**/*.lmdb
+data/**/*.zip
+data/**/*.tar
+data/**/*.gz
+data/**/*.txt
+data/**/*.py
+data/**/cache/
+data/**/tmp/
+
+# Allow lightweight data docs/scripts/placeholders
+!data/**/*.md
+!data/**/*.yaml
+!data/**/*.yml
+!data/**/.gitkeep

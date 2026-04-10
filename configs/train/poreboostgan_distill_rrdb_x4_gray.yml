@@ -51,7 +51,7 @@ network_teacher:
   num_grow_ch: 32
 
 path:
-  pretrain_network_teacher: models/poreboostgan_esrgan_teacher_x4_gray.pth
+  pretrain_network_teacher: experiments/poreboostgan_esrgan_x4_gray/models/net_g_300000.pth
   strict_load_teacher: true
   param_key_teacher: params
   pretrain_network_g: ~
@@ -80,20 +80,11 @@ train:
     loss_weight: 1.0
     reduction: mean
 
-  perceptual_opt:
-    type: PerceptualLoss
-    layer_weights:
-      conv5_4: 1
-    vgg_type: vgg19
-    use_input_norm: true
-    range_norm: false
-    perceptual_weight: 1.0
-    style_weight: 0
-    criterion: l1
+  perceptual_opt: ~
 
   distill_weight_feat: 1.0
   distill_weight_pix: 0.05
-  distill_weight_percep: 0.1
+  distill_weight_percep: 0.0
   gt_loss_weight: 0.05
 
 val:

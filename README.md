@@ -1,46 +1,102 @@
 # PoreBoostGAN
 
-PoreBoostGAN is a lightweight digital-rock super-resolution repository with two closely related projects that share most code:
+PoreBoostGAN is a lightweight digital-rock super-resolution repository for carbonate cores (grayscale XY slices).
 
-1. `PoreBoostGAN` (main): EDSR / ESRGAN / SwinIR / SwinIR+GAN.
-2. `DistillSR` (optional): ESRGAN-style student-teacher distillation without GAN, supervised by final deep RRDB features.
+This repo contains two related projects with shared code:
 
-This repository does **not** target medical images, segmentation, denoising, video restoration, or generic BasicSR development.
+1. `PoreBoostGAN` (main): EDSR / ESRGAN / SwinIR / SwinIR+GAN
+2. `DistillSR` (secondary): RRDB feature distillation without GAN
 
-3D Z-axis reconstruction is also **not** implemented here. This codebase only handles XY super-resolution and slice-wise inference. Z reconstruction can be completed later in ImageJ or another external tool.
+This repository does **not** target medical imaging, segmentation, denoising, video restoration, or generic BasicSR development.
+It only handles XY super-resolution and slice-wise inference. Z-axis reconstruction is external (for example ImageJ).
 
 ## Scope
 
-- Domain: carbonate digital rocks.
-- Data type: grayscale images.
-- Model pipeline: native single-channel super-resolution, with optional distillation.
-- Packaging: local `poreboostgan` package, no external `basicsr` dependency.
+- Domain: carbonate digital rocks
+- Data type: grayscale
+- Pipeline: single-channel SR + optional distillation
+- Packaging: local `poreboostgan` package, no external `basicsr` dependency
 
-## Current Data Layout
+## Open Dataset (Raw 3D TIFF)
 
-The repository is already wired to the current carbonate dataset under:
+- Mendeley dataset: https://data.mendeley.com/datasets/6kvtfb5kts/1
+- Raw data format: 3D digital-rock TIFF volumes (`.tif`)
+
+Provided raw volumes:
+
+- `Biogenic_16um.tif`
+- `Biogenic_4um_filter.tif`
+- `Biogenic_4um.tif`
+- `MRCCM_10.72um.tif`
+- `MRCCM_2.68um.tif`
+
+## Data Policy in This Repo
+
+`data/` is **not** blanket ignored anymore. We keep:
+
+- data format documentation
+- dataset preparation scripts
+- directory skeleton (`.gitkeep`)
+
+But raw/derived dataset binaries are ignored and must not be uploaded to GitHub:
+
+- `.tif/.tiff`, image patches, arrays, caches, archives, etc.
+
+## Expected Local Data Layout
 
 ```text
 data/mengyang/CARBONATES/3DSR/
+  High/
+    train/
+    validation/
+  Low/
+    train/
+    validation/
+  High_sub/
+    train/
+    validation/
+  Low_sub/
+    train/
+    validation/
+  meta_info/
 ```
 
-Important folders:
+## From 3D Volume to XY SR Dataset
 
-- `High/train`, `High/validation`: high-resolution full slices.
-- `Low/train`, `Low/validation`: low-resolution full slices.
-- `High_sub/train`, `High_sub/validation`: paired high-resolution training patches.
-- `Low_sub/train`, `Low_sub/validation`: paired low-resolution training patches.
-- `meta_info/`: meta files for paired patch loading.
+1. Slice raw 3D TIFF volumes into aligned 2D XY slices (external tool, e.g. ImageJ).
+2. Put aligned full-slice pairs into:
+   - `High/train`, `High/validation`
+   - `Low/train`, `Low/validation`
+3. Extract paired patches:
+
+```bash
+python tools/extract_xy_patches.py \
+  --hr-dir data/mengyang/CARBONATES/3DSR/High/train \
+  --lr-dir data/mengyang/CARBONATES/3DSR/Low/train \
+  --hr-out-dir data/mengyang/CARBONATES/3DSR/High_sub/train \
+  --lr-out-dir data/mengyang/CARBONATES/3DSR/Low_sub/train \
+  --scale 4 \
+  --hr-crop-size 384 \
+  --step 320
+```
+
+4. Generate meta info:
+
+```bash
+python tools/generate_meta_info.py \
+  --gt-dir data/mengyang/CARBONATES/3DSR/High_sub/train \
+  --output data/mengyang/CARBONATES/3DSR/meta_info/meta_info_high_carbon.txt
+```
 
 ## Install
 
-Install PyTorch and TorchVision first according to your CUDA environment, then install the repo dependencies:
+Install PyTorch/TorchVision for your CUDA first, then:
 
 ```bash
 pip install -e .
 ```
 
-If you prefer a plain requirements install:
+Or:
 
 ```bash
 pip install -r requirements.txt
@@ -48,44 +104,49 @@ pip install -r requirements.txt
 
 ## Main Training
 
-The default main configuration is the grayscale SwinIR + GAN setup:
+SwinIR+GAN (default main setup):
 
 ```bash
 python src/train.py -opt configs/train/poreboostgan_swinir_gan_x4_gray.yml
 ```
 
-## DistillSR Training (Optional)
+## DistillSR (Second Project)
 
-The distillation project is separated by model/config, while reusing the same package and data pipeline.
+DistillSR reuses the same pipeline/data, but switches objective:
+
+- teacher: pretrained RRDB (`frozen`)
+- student: lightweight RRDB (`trainable`)
+- deep supervision: align final RRDB trunk feature (`return_feats=True`)
+- GAN loss: removed
+
+Loss structure:
+
+- `L = w_feat * ||F_s - F_t||_1 + w_pix * ||SR_s - SR_t||_1 + w_gt * ||SR_s - HR||_1`
+
+Default teacher is set to your 300k ESRGAN checkpoint:
+
+- `experiments/poreboostgan_esrgan_x4_gray/models/net_g_300000.pth`
+
+Train DistillSR:
 
 ```bash
 python src/train.py -opt configs/train/poreboostgan_distill_rrdb_x4_gray.yml
 ```
 
-Core idea:
-
-- teacher: pretrained RRDB SR network (frozen)
-- student: lightweight RRDB SR network (trainable)
-- objective: deep feature supervision on the last RRDB trunk feature (`return_feats=True`)
-- GAN loss is not used in this project
-
-## Main Inference
-
-Update `dataroot_lq` and `pretrain_network_g` in:
-
-```text
-configs/infer/poreboostgan_swinir_gan_x4_gray.yml
-```
-
-Then run:
+Infer DistillSR student:
 
 ```bash
-python src/infer.py -opt configs/infer/poreboostgan_swinir_gan_x4_gray.yml
+python src/infer.py -opt configs/infer/poreboostgan_distill_rrdb_x4_gray.yml
 ```
 
-`results/<run_name>/visualization/` will contain the restored slices.
+## Released Weights
 
-## Inference Commands (4 Experiments)
+- Teacher checkpoint (ESRGAN RRDB, 300k):
+  - https://github.com/acse-ym722/PoreBoostGAN/releases/tag/v0.2.0-distillsr-teacher-300k
+  - asset: `net_g_300000.pth`
+  - sha256: `8d9a80a55bad0fa0be8c0f41e0523ecddf911820549abbbb0e3b0f8dd1371262`
+
+## Inference (Four Main Experiments)
 
 EDSR:
 
@@ -111,16 +172,7 @@ SwinIR+GAN:
 python src/infer.py -opt configs/infer/poreboostgan_swinir_gan_x4_gray.yml
 ```
 
-DistillSR student inference:
-
-```bash
-python src/infer.py -opt configs/infer/poreboostgan_distill_rrdb_x4_gray.yml
-```
-
 ## Quick Smoke Training (1~5 Steps)
-
-The following commands are for quick smoke runs only.  
-They set `total_iter=5`, disable validation, and effectively disable mid-run checkpoint saving to reduce disk writes.
 
 EDSR smoke:
 
@@ -162,60 +214,21 @@ python src/train.py -opt configs/train/poreboostgan_distill_rrdb_x4_gray.yml \
   datasets:train:num_worker_per_gpu=0 datasets:train:batch_size_per_gpu=1 logger:print_freq=1
 ```
 
-## Active Layout
-
-- `poreboostgan/`: the active lightweight package for digital-rock super-resolution.
-- `configs/`: the active training and inference configs for the grayscale carbonate workflow.
-- `tools/`: dataset preparation and downsampling utilities for grayscale slices.
-- `src/`: lightweight entry scripts (`train.py`, `test.py`, `app.py`, `infer.py`) that call into `poreboostgan`.
-
 ## Extrapolation Workflow
 
-Extrapolation is just repeated inference:
+Extrapolation is repeated inference:
 
-1. Run inference on the current low-resolution input.
-2. Use the previous output folder as the next `dataroot_lq`.
-3. Run inference again.
-
-This is how the repository handles super-resolution beyond the original instrument resolution.
+1. run inference on current input
+2. use previous output as next `dataroot_lq`
+3. run inference again
 
 ## Downsampling Study
-
-For representation studies, use:
 
 ```bash
 python tools/downsample_folder.py --input-dir <input> --output-dir <output> --scale 4
 ```
 
-This is intended for experiments such as:
-
-- ultra-high-resolution downsampled to high-resolution
-- high-resolution downsampled to original low-resolution
-
-## Dataset Utilities
-
-Generate paired XY patches from aligned high/low folders:
-
-```bash
-python tools/extract_xy_patches.py \
-  --hr-dir data/mengyang/CARBONATES/3DSR/High/train \
-  --lr-dir data/mengyang/CARBONATES/3DSR/Low/train \
-  --hr-out-dir data/mengyang/CARBONATES/3DSR/High_sub/train \
-  --lr-out-dir data/mengyang/CARBONATES/3DSR/Low_sub/train \
-  --scale 4 \
-  --hr-crop-size 384 \
-  --step 320
-```
-
-Generate meta info:
-
-```bash
-python tools/generate_meta_info.py \
-  --gt-dir data/mengyang/CARBONATES/3DSR/High_sub/train \
-  --output data/mengyang/CARBONATES/3DSR/meta_info/meta_info_high_carbon.txt
-```
-
 ## Notes
 
-- The code now treats digital-rock data as grayscale by default through `img_flag: grayscale`.
-- VGG perceptual loss still works: single-channel tensors are repeated to 3 channels only inside the perceptual extractor.
+- Grayscale is enforced by `img_flag: grayscale`.
+- If perceptual loss is used, channel repeat to 3 only happens inside feature extractor.
