@@ -16,6 +16,7 @@ dependencies = [
   "scikit-image",
   "scipy",
   "tensorboard",
+  "tifffile",
   "tqdm",
 ]
 

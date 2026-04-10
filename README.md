@@ -1,6 +1,7 @@
 # PoreBoostGAN
 
-PoreBoostGAN is a lightweight digital-rock super-resolution repository for carbonate cores (grayscale XY slices).
+PoreBoostGAN is a lightweight digital-rock super-resolution repository for carbonate cores.
+It now supports both legacy XY 2D SR and stage-1 end-to-end 3D cubic SR.
 
 This repo contains two related projects with shared code:
 
@@ -8,13 +9,13 @@ This repo contains two related projects with shared code:
 2. `DistillSR` (secondary): RRDB feature distillation without GAN
 
 This repository does **not** target medical imaging, segmentation, denoising, video restoration, or generic BasicSR development.
-It only handles XY super-resolution and slice-wise inference. Z-axis reconstruction is external (for example ImageJ).
+Current focus is pore-scale super-resolution for carbonate digital rocks.
 
 ## Scope
 
 - Domain: carbonate digital rocks
-- Data type: grayscale
-- Pipeline: single-channel SR + optional distillation
+- Data type: grayscale or multi-channel volume data
+- Pipeline: 2D SR (legacy) + 3D cubic SR (stage-1)
 - Packaging: local `poreboostgan` package, no external `basicsr` dependency
 
 ## Open Dataset (Raw 3D TIFF)
@@ -58,10 +59,45 @@ data/mengyang/CARBONATES/3DSR/
   Low_sub/
     train/
     validation/
+  High_sub3d/
+    train/
+    validation/
+  Low_sub3d/
+    train/
+    validation/
   meta_info/
 ```
 
-## From 3D Volume to XY SR Dataset
+## 3D End-to-End Dataset Prep (Stage-1)
+
+Prepare aligned paired HR/LR volumes (`.npy/.npz/.tif/.tiff`) under:
+
+- `High/train`, `High/validation`
+- `Low/train`, `Low/validation`
+
+Extract paired cubic patches (`subimage^3`):
+
+```bash
+python tools/extract_xyz_cubes.py \
+  --hr-dir data/mengyang/CARBONATES/3DSR/High/train \
+  --lr-dir data/mengyang/CARBONATES/3DSR/Low/train \
+  --hr-out-dir data/mengyang/CARBONATES/3DSR/High_sub3d/train \
+  --lr-out-dir data/mengyang/CARBONATES/3DSR/Low_sub3d/train \
+  --scale 4 \
+  --hr-cube-size 64 \
+  --step 64 \
+  --data-format auto
+```
+
+Optional meta info for 3D patches:
+
+```bash
+python tools/generate_meta_info_3d.py \
+  --gt-dir data/mengyang/CARBONATES/3DSR/High_sub3d/train \
+  --output data/mengyang/CARBONATES/3DSR/meta_info/meta_info_high_carbon_3d.txt
+```
+
+## Legacy XY Dataset Prep (2D)
 
 1. Slice raw 3D TIFF volumes into aligned 2D XY slices (external tool, e.g. ImageJ).
 2. Put aligned full-slice pairs into:
@@ -93,6 +129,14 @@ python tools/generate_meta_info.py \
 Install PyTorch/TorchVision for your CUDA first, then:
 
 ```bash
+conda env create -f environment_3d.yml
+conda activate pore3d
+pip install -e .
+```
+
+Or use your existing env (for example `conda activate pore`):
+
+```bash
 pip install -e .
 ```
 
@@ -103,6 +147,36 @@ pip install -r requirements.txt
 ```
 
 ## Main Training
+
+3D EDSR (stage-1):
+
+```bash
+python src/train.py -opt configs/train/poreboostgan_edsr3d_x4.yml
+```
+
+3D ESRGAN (x2, RRDB):
+
+```bash
+python src/train.py -opt configs/train/poreboostgan_esrgan3d_x2.yml
+```
+
+3D ESRGAN (x2, 4090-friendly):
+
+```bash
+python src/train.py -opt configs/train/poreboostgan_esrgan3d_x2_4090.yml
+```
+
+3D SwinIRGAN (x4, 4090-friendly):
+
+```bash
+python src/train.py -opt configs/train/poreboostgan_swinirgan3d_x4_4090.yml
+```
+
+For 3D validation with `save_img: true`, outputs include:
+
+- SR volume: `*.npy`
+- center slices: `*_x.png`, `*_y.png`, `*_z.png`
+- SR/GT comparisons: `*_x_sr_gt.png`, `*_y_sr_gt.png`, `*_z_sr_gt.png`
 
 SwinIR+GAN (default main setup):
 
@@ -147,6 +221,47 @@ python src/infer.py -opt configs/infer/poreboostgan_distill_rrdb_x4_gray.yml
   - sha256: `8d9a80a55bad0fa0be8c0f41e0523ecddf911820549abbbb0e3b0f8dd1371262`
 
 ## Inference (Four Main Experiments)
+
+3D EDSR:
+
+```bash
+python src/infer.py -opt configs/infer/poreboostgan_edsr3d_x4.yml
+```
+
+3D ESRGAN (x2):
+
+```bash
+python src/infer.py -opt configs/infer/poreboostgan_esrgan3d_x2.yml
+```
+
+3D SwinIRGAN (x4):
+
+```bash
+python src/infer.py -opt configs/infer/poreboostgan_swinirgan3d_x4_4090.yml
+```
+
+## Full 3D Reconstruction (Seam-Reduced)
+
+Use tiled 3D inference for large LR volumes and stitch with center-trust strategy:
+
+- each block is inferred with extra context
+- only center core is written back
+- boundary predictions are discarded to reduce seams
+
+```bash
+python tools/infer_3d_volume_reconstruct.py \
+  --input data/c2_360_360_1024.tif \
+  --output results/c2_sr_x2_reconstruct.tif \
+  --model-path experiments/poreboostgan_esrgan3d_x2_4090/models/net_g_2000.pth \
+  --config experiments/poreboostgan_esrgan3d_x2_4090/poreboostgan_esrgan3d_x2_4090.yml \
+  --device cuda \
+  --fp16 \
+  --core-size 64 \
+  --context 16 \
+  --save-dtype uint8
+```
+
+Inference output for 3D is saved as `.tif` volume files in `results/<name>/visualization/`.
 
 EDSR:
 
@@ -232,3 +347,4 @@ python tools/downsample_folder.py --input-dir <input> --output-dir <output> --sc
 
 - Grayscale is enforced by `img_flag: grayscale`.
 - If perceptual loss is used, channel repeat to 3 only happens inside feature extractor.
+- 3D datasets use `PairedVolumeDataset` / `SingleVolumeDataset` and expect tensors in `C,D,H,W`.

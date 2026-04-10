@@ -2,9 +2,9 @@ from copy import deepcopy
 
 from poreboostgan.utils.registry import METRIC_REGISTRY
 from .niqe import calculate_niqe
-from .psnr_ssim import calculate_psnr, calculate_ssim
+from .psnr_ssim import calculate_psnr, calculate_psnr_3d, calculate_ssim
 
-__all__ = ['calculate_psnr', 'calculate_ssim', 'calculate_niqe']
+__all__ = ['calculate_psnr', 'calculate_psnr_3d', 'calculate_ssim', 'calculate_niqe']
 
 
 def calculate_metric(data, opt):

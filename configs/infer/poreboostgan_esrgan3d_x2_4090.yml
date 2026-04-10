@@ -1,0 +1,30 @@
+name: poreboostgan_esrgan3d_infer_x2_4090
+model_type: ESRGANModel
+scale: 2
+num_gpu: auto
+manual_seed: 0
+
+datasets:
+  test_1:
+    name: carbonates_demo_3d_x2
+    type: SingleVolumeDataset
+    dataroot_lq: data/mengyang/CARBONATES/3DSR/Low_sub/validation
+    data_format: auto
+    io_backend:
+      type: disk
+
+network_g:
+  type: RRDBNet3D
+  num_in_ch: 1
+  num_out_ch: 1
+  scale: 2
+  num_feat: 48
+  num_block: 12
+  num_grow_ch: 24
+
+path:
+  pretrain_network_g: experiments/poreboostgan_esrgan3d_x2_4090/models/net_g_latest.pth
+  strict_load_g: true
+
+val:
+  save_img: true

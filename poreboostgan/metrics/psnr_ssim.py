@@ -49,6 +49,40 @@ def calculate_psnr(img, img2, crop_border, input_order='HWC', test_y_channel=Fal
 
 
 @METRIC_REGISTRY.register()
+def calculate_psnr_3d(img, img2, crop_border=0, input_order='DHWC', data_range=1.0, **kwargs):
+    """Calculate PSNR for 3D volumes.
+
+    Args:
+        img (ndarray): Volume with shape DHW or DHWC / CDHW.
+        img2 (ndarray): Reference volume with the same shape as img.
+        crop_border (int): Cropped voxels for each spatial edge.
+        input_order (str): DHWC | CDHW | DHW.
+        data_range (float): Peak signal range. 1.0 for normalized data.
+    """
+    assert img.shape == img2.shape, (f'Volume shapes are different: {img.shape}, {img2.shape}.')
+    if input_order not in ['DHWC', 'CDHW', 'DHW']:
+        raise ValueError(f'Wrong input_order {input_order}. Supported input_orders are "DHWC", "CDHW", "DHW"')
+
+    if input_order == 'CDHW':
+        img = np.transpose(img, (1, 2, 3, 0))
+        img2 = np.transpose(img2, (1, 2, 3, 0))
+    elif input_order == 'DHW':
+        img = img[..., None]
+        img2 = img2[..., None]
+
+    if crop_border != 0:
+        img = img[crop_border:-crop_border, crop_border:-crop_border, crop_border:-crop_border, ...]
+        img2 = img2[crop_border:-crop_border, crop_border:-crop_border, crop_border:-crop_border, ...]
+
+    img = img.astype(np.float64)
+    img2 = img2.astype(np.float64)
+    mse = np.mean((img - img2)**2)
+    if mse == 0:
+        return float('inf')
+    return 10. * np.log10((data_range**2) / mse)
+
+
+@METRIC_REGISTRY.register()
 def calculate_psnr_pt(img, img2, crop_border, test_y_channel=False, **kwargs):
     """Calculate PSNR (Peak Signal-to-Noise Ratio) (PyTorch version).
 

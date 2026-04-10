@@ -1,4 +1,5 @@
 import logging
+import numpy as np
 import sys
 import torch
 from tqdm import tqdm
@@ -12,6 +13,33 @@ from poreboostgan.data import build_dataloader, build_dataset
 from poreboostgan.models import build_model
 from poreboostgan.utils.options import parse_options
 from poreboostgan.utils import imwrite, tensor2img
+
+try:
+    import tifffile
+except ImportError:
+    tifffile = None
+
+
+def _tensor_to_volume(tensor):
+    # Accept (1, C, D, H, W) or (C, D, H, W)
+    if tensor.dim() == 5:
+        tensor = tensor.squeeze(0)
+    if tensor.dim() != 4:
+        raise ValueError(f'Expected 4D/5D tensor for volume output, got shape={tuple(tensor.shape)}.')
+    volume = tensor.detach().float().cpu().clamp_(0, 1).permute(1, 2, 3, 0).numpy()
+    if volume.shape[-1] == 1:
+        volume = np.squeeze(volume, axis=-1)
+    return volume.astype(np.float32)
+
+
+def _save_volume_tif(volume, save_path):
+    if tifffile is None:
+        raise ImportError('tifffile is required for 3D tif output. Please install tifffile.')
+    # Save as uint8 for better compatibility with common TIFF viewers.
+    volume_u8 = np.clip(volume, 0.0, 1.0)
+    volume_u8 = np.round(volume_u8 * 255.0).astype(np.uint8)
+    tifffile.imwrite(save_path, volume_u8, bigtiff=True)
+
 
 def application_pipeline(root_path):
     # parse options, set distributed setting, set ramdom seed
@@ -41,12 +69,22 @@ def application_pipeline(root_path):
             model.feed_data(val_data)
             model.test()
             visuals = model.get_current_visuals()
-            sr_img = tensor2img(visuals['result'])
-            metric_data['img'] = sr_img
-            
-            save_img_path = osp.join(model.opt['path']['visualization'], 
-                                                 f'{img_name}.png')
-            imwrite(sr_img, save_img_path)
+            result_tensor = visuals['result']
+
+            if result_tensor.dim() == 5:
+                sr_volume = _tensor_to_volume(result_tensor)
+                metric_data['img'] = sr_volume
+                save_img_path = osp.join(model.opt['path']['visualization'], f'{img_name}.tif')
+                osp_dir = osp.dirname(save_img_path)
+                if osp_dir:
+                    import os
+                    os.makedirs(osp_dir, exist_ok=True)
+                _save_volume_tif(sr_volume, save_img_path)
+            else:
+                sr_img = tensor2img(result_tensor)
+                metric_data['img'] = sr_img
+                save_img_path = osp.join(model.opt['path']['visualization'], f'{img_name}.png')
+                imwrite(sr_img, save_img_path)
 
 if __name__ == '__main__':
     root_path = PROJECT_ROOT

@@ -1,0 +1,32 @@
+name: poreboostgan_swinirgan3d_infer_x4_4090
+model_type: ESRGANModel
+scale: 4
+num_gpu: auto
+manual_seed: 0
+
+datasets:
+  test_1:
+    name: carbonates_demo_3d_swinirgan_x4
+    type: SingleVolumeDataset
+    dataroot_lq: data/mengyang/CARBONATES/3DSR/Low_sub_x4/validation
+    data_format: auto
+    io_backend:
+      type: disk
+
+network_g:
+  type: SwinIR3D
+  upscale: 4
+  in_chans: 1
+  embed_dim: 48
+  depths: [4, 4, 4]
+  num_heads: [4, 4, 4]
+  window_size: 4
+  mlp_ratio: 2.0
+  img_range: 1.0
+
+path:
+  pretrain_network_g: experiments/poreboostgan_swinirgan3d_x4_4090/models/net_g_latest.pth
+  strict_load_g: true
+
+val:
+  save_img: true

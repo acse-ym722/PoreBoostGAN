@@ -1,0 +1,30 @@
+name: poreboostgan_edsr3d_infer_x4
+model_type: SRModel
+scale: 4
+num_gpu: auto
+manual_seed: 0
+
+datasets:
+  test_1:
+    name: carbonates_demo_3d
+    type: SingleVolumeDataset
+    dataroot_lq: data/mengyang/CARBONATES/3DSR/Low/validation
+    data_format: auto
+    io_backend:
+      type: disk
+
+network_g:
+  type: EDSR3D
+  num_in_ch: 1
+  num_out_ch: 1
+  num_feat: 48
+  num_block: 8
+  upscale: 4
+  res_scale: 0.1
+
+path:
+  pretrain_network_g: experiments/poreboostgan_edsr3d_x4/models/net_g_latest.pth
+  strict_load_g: true
+
+val:
+  save_img: true

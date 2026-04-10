@@ -5,4 +5,5 @@ PyYAML
 scikit-image
 scipy
 tensorboard
+tifffile
 tqdm
