@@ -3,6 +3,16 @@
 PoreBoostGAN is a lightweight digital-rock super-resolution repository for carbonate cores.
 It now supports both legacy XY 2D SR and stage-1 end-to-end 3D cubic SR.
 
+This repository supports the SPE Journal paper:
+
+- **Super-Resolution Carbonate Rock Image Beyond Instrument Limitations**
+- Authors: Yang Meng, Kunning Tang, Heping Xie, Zhangxin Chen, Ying Teng, Yuntian Chen, Cunbao Li, and Senyou An
+- Journal: **SPE Journal**, published online July 2026
+- DOI: https://doi.org/10.2118/234678-PA
+- PDF: https://onepetro.org/SJ/article-pdf/doi/10.2118/234678-PA/5390025/spe-234678-pa.pdf
+
+The paper introduces **SwinIRGAN**, a sliding-window-attention super-resolution framework for carbonate digital rocks. Reported results include 99.48% Euler-number accuracy on the biogenic carbonate dataset, 97.05% accuracy for higher-resolution extrapolation, and a 15.59% Euler-number improvement over the baseline on the multiresolution complex carbonates micro-computed tomography (MRCCM) dataset.
+
 This repo contains two related projects with shared code:
 
 1. `PoreBoostGAN` (main): EDSR / ESRGAN / SwinIR / SwinIR+GAN
@@ -10,6 +20,26 @@ This repo contains two related projects with shared code:
 
 This repository does **not** target medical imaging, segmentation, denoising, video restoration, or generic BasicSR development.
 Current focus is pore-scale super-resolution for carbonate digital rocks.
+
+## Citation
+
+If this repository or dataset helps your work, please cite:
+
+```bibtex
+@article{10.2118/234678-PA,
+    author = {Meng, Yang and Tang, Kunning and Xie, Heping and Chen, Zhangxin and Teng, Ying and Chen, Yuntian and Li, Cunbao and An, Senyou},
+    title = {Super-Resolution Carbonate Rock Image Beyond Instrument Limitations},
+    journal = {SPE Journal},
+    pages = {1-8},
+    year = {2026},
+    month = {07},
+    abstract = {Carbonate rocks, as complex multiscale porous media, present major imaging challenges because of intricate structures and strong heterogeneity. To address the trade-off between field of view (FOV) and resolution, we introduce the Swin transformer for image restoration generative adversarial network (SwinIRGAN), a super-resolution (SR) framework based on sliding-window attention that captures long-range features efficiently. The model balances global consistency with high-frequency detail preservation and learns the mapping between low-resolution (LR) and high-resolution (HR) images. Using a biogenic carbonate data set, SwinIRGAN achieves 99.48\% accuracy in Euler's number and 97.05\% accuracy in higher-resolution extrapolation. For the multiresolution complex carbonates micro-computed tomography (micro-CT, MRCCM) data set, the proposed reconstruction and extrapolation workflow improves Euler's number by 15.59\% compared with the baseline. Results show that SwinIRGAN preserves mineralogical and topological characteristics across scales and provides more reliable digital rocks for pore-scale analysis and flow simulation.},
+    issn = {1086-055X},
+    doi = {10.2118/234678-PA},
+    url = {https://doi.org/10.2118/234678-PA},
+    eprint = {https://onepetro.org/SJ/article-pdf/doi/10.2118/234678-PA/5390025/spe-234678-pa.pdf},
+}
+```
 
 ## Scope
 
