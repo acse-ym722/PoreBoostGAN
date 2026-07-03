@@ -23,7 +23,7 @@ Current focus is pore-scale super-resolution for carbonate digital rocks.
 
 ## Citation
 
-If this repository or dataset helps your work, please cite:
+If this repository or dataset helps your work, please cite the paper and dataset:
 
 ```bibtex
 @article{10.2118/234678-PA,
@@ -41,6 +41,18 @@ If this repository or dataset helps your work, please cite:
 }
 ```
 
+```bibtex
+@data{meng_poreboostgan_2024,
+    author = {Meng, Yang and An, Senyou},
+    title = {PoreBoostGAN},
+    publisher = {Mendeley Data},
+    year = {2024},
+    version = {V1},
+    doi = {10.17632/6kvtfb5kts.1},
+    url = {https://data.mendeley.com/datasets/6kvtfb5kts/1},
+}
+```
+
 ## Scope
 
 - Domain: carbonate digital rocks
@@ -50,7 +62,9 @@ If this repository or dataset helps your work, please cite:
 
 ## Open Dataset (Raw 3D TIFF)
 
-- Mendeley dataset: https://data.mendeley.com/datasets/6kvtfb5kts/1
+- Mendeley Data: Meng, Yang; An, Senyou (2024), "PoreBoostGAN", Mendeley Data, V1
+- DOI: https://doi.org/10.17632/6kvtfb5kts.1
+- Dataset URL: https://data.mendeley.com/datasets/6kvtfb5kts/1
 - Raw data format: 3D digital-rock TIFF volumes (`.tif`)
 
 Provided raw volumes:
